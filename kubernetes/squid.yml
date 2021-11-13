@@ -1,0 +1,143 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: squidsa
+  annotations:
+    kubernetes.io/enforce-mountable-secrets: "true"
+secrets:
+- name: squid.tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: squid
+  labels:
+    name: squid
+spec:
+  type: LoadBalancer
+  ports:
+    - port: 3128
+      targetPort: 3128
+      protocol: TCP
+  selector:
+    name: squid
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: squid-logs-pvc
+spec:
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: squid-cache-pvc
+spec:
+  resources:
+    requests:
+      storage: 1Gi
+  accessModes:
+    - ReadWriteOnce
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: squid
+  labels:
+    name: squid
+spec:
+  selector:
+    matchLabels:
+      name: squid
+  strategy:
+    type: Recreate
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: squid
+    spec:
+      serviceAccountName: squidsa
+      containers:
+      - name: tail-squid-access
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        command:
+          - "/bin/sh"
+          - "-c"
+        args:
+          - tail -F /var/log/squid/access.log
+        volumeMounts:
+        - mountPath: /var/log/squid
+          name: squid-logs
+      - name: tail-squid-cache
+        image: busybox
+        imagePullPolicy: IfNotPresent
+        command:
+          - "/bin/sh"
+          - "-c"
+        args:
+          - tail -F /var/log/squid/cache.log
+        volumeMounts:
+        - mountPath: /var/log/squid
+          name: squid-logs
+      - name: squid
+        image: goonnowgit/squid:5.1
+        imagePullPolicy: IfNotPresent
+        securityContext:
+          readOnlyRootFilesystem: true
+        readinessProbe:
+          tcpSocket:
+            port: 3128
+          initialDelaySeconds: 15
+          periodSeconds: 5
+        livenessProbe:
+          tcpSocket:
+            port: 3128
+          initialDelaySeconds: 15
+          periodSeconds: 10
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 3128
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /etc/squid
+          name: squid-config
+        - mountPath: /etc/squid/acls
+          name: squid-acls
+        - mountPath: /etc/squid/ssl_cert
+          name: squid-sslcerts
+        - mountPath: /var/log/squid
+          name: squid-logs
+        - mountPath: /var/lib
+          name: squid-ssldb
+        - mountPath: /var/run
+          name: squid-run
+        - mountPath: /var/spool/squid
+          name: squid-cache
+      volumes:
+      - name: squid-config
+        configMap:
+          name: squid.config
+      - name: squid-cache
+        persistentVolumeClaim:
+          claimName: squid-cache-pvc
+      - name: squid-acls
+        configMap:
+          name: squid.acls
+      - name: squid-sslcerts
+        secret:
+          secretName: squid.tls
+      - name: squid-ssldb
+        emptyDir: {}
+      - name: squid-run
+        emptyDir: {}
+      - name: squid-logs
+        persistentVolumeClaim:
+          claimName: squid-logs-pvc
