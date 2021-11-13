@@ -1,0 +1,18 @@
+version: '3'
+services:
+  squid-proxy:
+    build:
+      context: .
+      args:
+        - LATEST_RELEASE=5.1
+    image: goonnowgit/squid:5.1
+    ports:
+      - 3128:3128
+    volumes:
+      - ./confs:/etc/squid
+      - ./ssl_cert:/etc/squid/ssl_cert
+      - ./cache:/var/spool/squid
+      - ./ssl_db:/var/lib
+      - ./logs:/var/log/squid
+      - ./run:/var/run
+    restart: unless-stopped
