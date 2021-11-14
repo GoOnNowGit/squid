@@ -31,7 +31,7 @@ create_ssl_db_dir
 if [[ ${1:0:1} = '-' ]]; then
   EXTRA_ARGS="$@"
   set --
-elif [[ ${1} == squid || ${1} == $(which squid) ]]; then
+elif [[ ${1} == squid || ${1} == $(command -v squid) ]]; then
   EXTRA_ARGS="${@:2}"
   set --
 fi
@@ -40,10 +40,10 @@ fi
 if [[ -z ${1} ]]; then
   if [[ ! -d ${SQUID_CACHE_DIR}/00 ]]; then
     echo "Initializing cache..."
-    $(which squid) -N -f /etc/squid/squid.conf -z
+    $(command -v squid) -N -f /etc/squid/squid.conf -z
   fi
   echo "Starting squid..."
-  exec $(which squid) -f /etc/squid/squid.conf -NYCd 1 ${EXTRA_ARGS}
+  exec $(command -v squid) -f /etc/squid/squid.conf -NYCd 1 ${EXTRA_ARGS}
 else
   exec "$@"
 fi
