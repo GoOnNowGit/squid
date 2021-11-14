@@ -1,0 +1,15 @@
+name: Sandbox dnscrypt-proxy workflow
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  build:
+    name: Build Image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Build image
+        uses: actions/checkout@v2
+        run: docker-compose build
