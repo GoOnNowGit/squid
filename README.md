@@ -42,3 +42,5 @@ kubectl delete -f squid.yml
 * https://wiki.squid-cache.org/SquidFaq/CompilingSquid
 * https://wiki.squid-cache.org/ConfigExamples/ContentAdaptation/eCAP
 * https://github.com/sameersbn/docker-squid.git
+* https://github.com/yvoinov/squid-ecap-exif
+* https://github.com/yvoinov/squid-ecap-gzip
