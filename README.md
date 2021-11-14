@@ -22,20 +22,30 @@ openssl dhparam -out confs/dhparams.pem 2048
 ```
 kubectl create configmap squid.config --from-file=confs
 ```
+### Create acls config map
 
-### Create the secret using existing key-pair or self-signed above
+```
+kubectl create configmap squid.acls --from-file=acls 
+```
+
+### Create secret using existing key-pair or self-signed above
 ```
 kubectl create secret tls squid.tls --cert=tls.crt --key=tls.key
 ```
 
 ### Apply the deployment
 ```
-kubectl apply -f squid.yml
+kubectl apply -f kubernetes/squid.yml
 ```
 
 ### Delete the deployment
 ```
-kubectl delete -f squid.yml
+kubectl delete -f kubernetes/squid.yml
+```
+
+### Connect via the proxy
+```
+curl --proxy http://127.0.0.1:3128 --proxy-cacert tls.crt www.google.com
 ```
 
 ## References
