@@ -2,6 +2,7 @@ name: Sandbox dnscrypt-proxy workflow
 
 on:
   push:
+    branches: [ main ]
   pull_request:
     branches: [ main ]
 
