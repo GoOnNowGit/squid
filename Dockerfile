@@ -1,4 +1,4 @@
-ARG LATEST_RELEASE=5.1
+ARG LATEST_RELEASE=5.4.1
 
 FROM alpine as squid
 
@@ -9,7 +9,7 @@ ENV SQUID_FINGERPRINT=CD6DBF8EF3B17D3E
 RUN apk update && apk add --no-cache gnupg curl
 RUN curl -OL http://www.squid-cache.org/Versions/v${LATEST_RELEASE:0:1}/squid-${LATEST_RELEASE}.tar.gz
 RUN curl -OL http://www.squid-cache.org/Versions/v${LATEST_RELEASE:0:1}/squid-${LATEST_RELEASE}.tar.gz.asc
-RUN gpg --no-tty --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys ${SQUID_FINGERPRINT} 
+RUN gpg --no-tty --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys ${SQUID_FINGERPRINT} 
 RUN gpg --verify squid-${LATEST_RELEASE}.tar.gz.asc
 RUN tar xf squid-${LATEST_RELEASE}.tar.gz
 ###
@@ -112,6 +112,7 @@ RUN make install-strip
 ###
 ###
 FROM debian:sid-slim as debian_main
+LABEL org.opencontainers.image.source="https://github.com/goonnowgit/squid-container-fun"
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SQUID_CACHE_DIR=/var/spool/squid
