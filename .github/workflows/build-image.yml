@@ -1,4 +1,4 @@
-name: Sandbox dnscrypt-proxy workflow
+name: Squid build and test image workflow
 
 on: [push]
 
