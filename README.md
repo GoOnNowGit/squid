@@ -12,7 +12,8 @@ docker-compose build
 
 ### Make a self-signed cert (Testing purposes)
 ```
-openssl req -newkey rsa:2048 -x509 -sha256 -days 365 -nodes -out tls.crt -keyout tls.key
+mkdir ssl_cert
+openssl req -newkey rsa:2048 -x509 -sha256 -days 365 -nodes -out ssl_cert/tls.crt -keyout ssl_cert/tls.key
 ```
 
 ### Create dhparam file
@@ -32,7 +33,7 @@ kubectl create configmap squid.acls --from-file=acls
 
 ### Create secret using existing key-pair or self-signed above
 ```
-kubectl create secret tls squid.tls --cert=tls.crt --key=tls.key
+kubectl create secret tls squid.tls --cert=ssl_cert/tls.crt --key=ssl_cert/tls.key
 ```
 
 ### Apply the deployment
@@ -47,7 +48,7 @@ kubectl delete -f kubernetes/squid.yml
 
 ### Connect via the proxy
 ```
-curl --proxy http://127.0.0.1:3128 --proxy-cacert tls.crt www.google.com
+curl -v -k --proxy http://127.0.0.1:3128 --proxy-cacert tls.crt https://www.google.com
 ```
 
 ## References
