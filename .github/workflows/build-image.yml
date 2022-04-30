@@ -1,10 +1,6 @@
 name: Sandbox dnscrypt-proxy workflow
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push]
 
 jobs:
   build:
@@ -13,5 +9,18 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
+      
       - name: Build image
-        run: docker-compose build
+        run: docker compose build
+        
+      - name: Generate certs
+        run: mkdir ssl_cert && openssl req -newkey rsa:2048 -x509 -sha256 -days 365 -nodes -out ssl_cert/tls.crt -keyout ssl_cert/tls.key -subj "/C=CO/ST=state/L=locality/O=organization/OU=organizationalunit/CN=commonname/emailAddress=localhost@email.com"
+
+      - name: Make dhparams
+        run: openssl dhparam -out confs/dhparams.pem 2048
+
+      - name: Start
+        run: docker compose up -d 
+
+      - name: Use Squid
+        run: curl --proxy http://127.0.0.1:3128 --proxy-cacert ssl_cert/tls.crt www.google.com
