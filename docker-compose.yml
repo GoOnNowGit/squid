@@ -10,6 +10,7 @@ services:
       - 3128:3128
     volumes:
       - ./confs:/etc/squid
+      - ./acls:/etc/squid/acls
       - ./ssl_cert:/etc/squid/ssl_cert
       - ./cache:/var/spool/squid
       - ./ssl_db:/var/lib
