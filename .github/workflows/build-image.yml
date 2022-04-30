@@ -23,4 +23,4 @@ jobs:
         run: docker compose up -d && sleep 10
 
       - name: Use Squid
-        run: curl -v -k --proxy http://127.0.0.1:3128 --proxy-cacert ssl_cert/tls.crt www.google.com
+        run: curl -v -k --proxy http://127.0.0.1:3128 --proxy-cacert ssl_cert/tls.crt https://www.google.com
