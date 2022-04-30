@@ -20,7 +20,7 @@ jobs:
         run: openssl dhparam -out confs/dhparams.pem 2048
 
       - name: Start
-        run: docker compose up -d 
+        run: docker compose up -d && sleep 10
 
       - name: Use Squid
-        run: curl --proxy http://127.0.0.1:3128 --proxy-cacert ssl_cert/tls.crt www.google.com
+        run: curl -v -k --proxy http://127.0.0.1:3128 --proxy-cacert ssl_cert/tls.crt www.google.com
