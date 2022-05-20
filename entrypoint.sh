@@ -17,7 +17,7 @@ create_cache_dir() {
 }
 
 create_ssl_db_dir() {
-  if [ ! -e /var/lib/ssl_db/index.txt ]; then 
+  if [ ! -e /var/lib/ssl_db/index.txt ]; then
     /usr/lib/squid/security_file_certgen -c -s /var/lib/ssl_db -M 4MB
     chown -R ${SQUID_USER}:${SQUID_USER} /var/lib/ssl_db
   fi

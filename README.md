@@ -28,7 +28,7 @@ kubectl create configmap squid.config --from-file=confs
 ### Create acls config map
 
 ```
-kubectl create configmap squid.acls --from-file=acls 
+kubectl create configmap squid.acls --from-file=acls
 ```
 
 ### Create secret using existing key-pair or self-signed above

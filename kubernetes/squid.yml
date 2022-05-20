@@ -68,6 +68,11 @@ spec:
       - name: tail-squid-access
         image: busybox
         imagePullPolicy: IfNotPresent
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         command:
           - "/bin/sh"
           - "-c"
@@ -79,6 +84,11 @@ spec:
       - name: tail-squid-cache
         image: busybox
         imagePullPolicy: IfNotPresent
+        securityContext:
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
         command:
           - "/bin/sh"
           - "-c"
@@ -88,9 +98,17 @@ spec:
         - mountPath: /var/log/squid
           name: squid-logs
       - name: squid
-        image: goonnowgit/squid:5.1
+        image: goonnowgit/squid:5.4.1
         imagePullPolicy: IfNotPresent
         securityContext:
+          capabilities:
+            drop:
+            - audit_write
+            - setfcap
+            - setpcap
+            - fowner
+            - mknod
+            - sys_chroot
           readOnlyRootFilesystem: true
         readinessProbe:
           tcpSocket:
@@ -102,7 +120,6 @@ spec:
             port: 3128
           initialDelaySeconds: 15
           periodSeconds: 10
-        imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 3128
           protocol: TCP

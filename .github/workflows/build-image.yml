@@ -9,10 +9,10 @@ jobs:
 
     steps:
       - uses: actions/checkout@v2
-      
+
       - name: Build image
         run: docker compose build
-        
+
       - name: Generate certs
         run: mkdir ssl_cert && openssl req -newkey rsa:2048 -x509 -sha256 -days 365 -nodes -out ssl_cert/tls.crt -keyout ssl_cert/tls.key -subj "/C=CO/ST=state/L=locality/O=organization/OU=organizationalunit/CN=commonname/emailAddress=localhost@email.com"
 

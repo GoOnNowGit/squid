@@ -9,7 +9,7 @@ ENV SQUID_FINGERPRINT=CD6DBF8EF3B17D3E
 RUN apk update && apk add --no-cache gnupg curl
 RUN curl -OL http://www.squid-cache.org/Versions/v${LATEST_RELEASE:0:1}/squid-${LATEST_RELEASE}.tar.gz
 RUN curl -OL http://www.squid-cache.org/Versions/v${LATEST_RELEASE:0:1}/squid-${LATEST_RELEASE}.tar.gz.asc
-RUN gpg --no-tty --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys ${SQUID_FINGERPRINT} 
+RUN gpg --no-tty --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys ${SQUID_FINGERPRINT}
 RUN gpg --verify squid-${LATEST_RELEASE}.tar.gz.asc
 RUN tar xf squid-${LATEST_RELEASE}.tar.gz
 ###
@@ -152,4 +152,3 @@ RUN apt update && apt install -y --no-install-recommends \
 EXPOSE 3128/tcp
 
 ENTRYPOINT ["/sbin/entrypoint.sh"]
-

@@ -8,6 +8,13 @@ services:
     image: goonnowgit/squid:5.4.1
     ports:
       - 3128:3128
+    cap_drop:
+      - audit_write
+      - setfcap
+      - setpcap
+      - fowner
+      - mknod
+      - sys_chroot
     volumes:
       - ./confs:/etc/squid
       - ./acls:/etc/squid/acls
