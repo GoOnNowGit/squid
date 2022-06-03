@@ -4,17 +4,17 @@ services:
     build:
       context: .
       args:
-        - LATEST_RELEASE=5.4.1
-    image: goonnowgit/squid:5.4.1
+        - LATEST_RELEASE=5.5
+    image: goonnowgit/squid:5.5
     ports:
       - 3128:3128
     cap_drop:
-      - audit_write
-      - setfcap
-      - setpcap
-      - fowner
-      - mknod
-      - sys_chroot
+    - audit_write
+    - setfcap
+    - setpcap
+    - fowner
+    - mknod
+    - sys_chroot
     volumes:
       - ./confs:/etc/squid
       - ./acls:/etc/squid/acls

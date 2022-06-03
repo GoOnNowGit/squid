@@ -1,4 +1,4 @@
-ARG LATEST_RELEASE=5.4.1
+ARG LATEST_RELEASE=5.5
 
 FROM alpine as squid
 
@@ -15,7 +15,7 @@ RUN tar xf squid-${LATEST_RELEASE}.tar.gz
 ###
 ###
 ###
-FROM debian:sid-slim as ecap_libs
+FROM debian:buster-slim as ecap_libs
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -33,14 +33,14 @@ RUN apt update && apt install -y --no-install-recommends \
   pkg-config
 
 RUN git clone --depth 1 https://github.com/yvoinov/squid-ecap-gzip.git
-RUN (cd squid-ecap-gzip; sh ./configure ; make -j $(getconf _NPROCESSORS_ONLN); make install )
+RUN (cd squid-ecap-gzip; sh ./configure ; make -j $(getconf _NPROCESSORS_ONLN); make install-strip )
 
 RUN git clone --branch 0.5.4 --depth 1 https://github.com/yvoinov/squid-ecap-exif.git
-RUN (cd squid-ecap-exif; sh ./bootstrap.sh ; sh ./configure ; make -j $(getconf _NPROCESSORS_ONLN); make install )
+RUN (cd squid-ecap-exif; sh ./bootstrap.sh ; sh ./configure ; make -j $(getconf _NPROCESSORS_ONLN); make install-strip )
 ###
 ###
 ###
-FROM debian:sid-slim as builder
+FROM debian:buster-slim as builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -53,8 +53,9 @@ ENV SQUID_USER=proxy
 ENV SQUID_ERROR_LANG=English
 ENV SQUID_PREFIX=/usr/local/squid
 
-RUN echo "deb-src http://deb.debian.org/debian sid main" >> /etc/apt/sources.list
+RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list
 RUN apt update && apt-get build-dep -y squid
+RUN apt install -y libssl-dev
 
 COPY --from=squid squid-${LATEST_RELEASE} squid-${LATEST_RELEASE}
 
@@ -64,10 +65,12 @@ RUN ./configure \
         'PKG_CONFIG_PATH=/usr/local/lib/pkgconfig' \
         --datadir=/usr/share/squid \
         --disable-arch-native \
+        --disable-auth-basic \
+        --disable-auth-digest \
+        --disable-auth-negotiate \
+        --disable-auth-ntlm \
+        --disable-external-acl-helpers \
         --enable-async-io \
-        --enable-auth-basic="DB,fake,getpwnam,LDAP,NCSA,PAM,POP3,RADIUS,SASL" \
-        --enable-auth-digest="file,LDAP" \
-        --enable-auth-negotiate="kerberos,wrapper" \
         --enable-cache-digests \
         --enable-delay-pools \
         --enable-dependency-tracking \
@@ -75,9 +78,6 @@ RUN ./configure \
         --enable-err-language=${SQUID_ERROR_LANG} \
         --enable-esi \
         --enable-eui \
-        --enable-referer-log \
-        --enable-openssl \
-        --enable-external-acl-helpers="file_userip,kerberos_ldap_group,LDAP_group,session,SQL_session,time_quota,unix_group,wbinfo_group" \
         --enable-follow-x-forwarded-for \
         --enable-forw-via-db \
         --enable-htpc \
@@ -85,6 +85,8 @@ RUN ./configure \
         --enable-icmp \
         --enable-inline \
         --enable-linux-netfilter \
+        --enable-openssl \
+        --enable-referer-log \
         --enable-removal-policies="lru,heap" \
         --enable-security-cert-validators="fake" \
         --enable-silent-rules \
@@ -95,7 +97,6 @@ RUN ./configure \
         --enable-useragent-log \
         --enable-zph-qos \
         --libexecdir=/usr/lib/squid \
-        --mandir=/usr/share/man \
         --prefix=${SQUID_PREFIX} \
         --sysconfdir=/etc/squid \
         --with-default-user=${SQUID_USER} \
@@ -104,6 +105,9 @@ RUN ./configure \
         --with-openssl \
         --with-pidfile=/var/run/squid.pid \
         --with-swapdir=${SQUID_CACHE_DIR} \
+        --without-gnugss \
+        --without-heimdal-krb5 \
+        --without-mit-krb5 \
         --without-systemd
 
 RUN make -j $(getconf _NPROCESSORS_ONLN)
@@ -111,7 +115,7 @@ RUN make install-strip
 ###
 ###
 ###
-FROM debian:sid-slim as debian_main
+FROM debian:buster-slim as debian_main
 LABEL org.opencontainers.image.source="https://github.com/goonnowgit/squid-container-fun"
 
 ENV DEBIAN_FRONTEND=noninteractive
@@ -132,20 +136,18 @@ RUN apt update && apt install -y --no-install-recommends \
   exiv2 \
   expat \
   libecap3 \
-  libldap-2.4-2 \
   libltdl7 \
   libnetfilter-conntrack3 \
   libnfnetlink0 \
-  libpodofo-dev \
-  libpodofo0.9.7 \
-  libsasl2-2 \
-  libsasl2-modules-db \
+  libpodofo0.9.6 \
   libstdc++6 \
   libtag1v5 \
+  libtagc0 \
   libxml2 \
   libzip4 \
+  libcap2 \
   && rm -rf /var/lib/apt/lists/* \
-  && chown -R ${SQUID_USER}:${SQUID_USER} /usr/lib/squid /usr/share/squid /usr/local/squid \
+  && chown -R ${SQUID_USER}:${SQUID_USER} /usr/local/lib /usr/lib/squid /usr/share/squid /usr/local/squid \
   && chmod 0550 /sbin/entrypoint.sh \
   && chown ${SQUID_USER}:${SQUID_USER} /sbin/entrypoint.sh
 
