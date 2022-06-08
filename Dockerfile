@@ -1,17 +1,17 @@
-ARG LATEST_RELEASE=5.5
+ARG SQUID_VERSION=5.5
 
 FROM alpine as squid
 
-ARG LATEST_RELEASE
+ARG SQUID_VERSION
 
 ENV SQUID_FINGERPRINT=CD6DBF8EF3B17D3E
 
 RUN apk update && apk add --no-cache gnupg curl
-RUN curl -OL http://www.squid-cache.org/Versions/v${LATEST_RELEASE:0:1}/squid-${LATEST_RELEASE}.tar.gz
-RUN curl -OL http://www.squid-cache.org/Versions/v${LATEST_RELEASE:0:1}/squid-${LATEST_RELEASE}.tar.gz.asc
+RUN curl -OL http://www.squid-cache.org/Versions/v${SQUID_VERSION:0:1}/squid-${SQUID_VERSION}.tar.gz
+RUN curl -OL http://www.squid-cache.org/Versions/v${SQUID_VERSION:0:1}/squid-${SQUID_VERSION}.tar.gz.asc
 RUN gpg --no-tty --keyserver hkps://keyserver.ubuntu.com:443 --recv-keys ${SQUID_FINGERPRINT}
-RUN gpg --verify squid-${LATEST_RELEASE}.tar.gz.asc
-RUN tar xf squid-${LATEST_RELEASE}.tar.gz
+RUN gpg --verify squid-${SQUID_VERSION}.tar.gz.asc
+RUN tar xf squid-${SQUID_VERSION}.tar.gz
 ###
 ###
 ###
@@ -44,7 +44,7 @@ FROM debian:buster-slim as builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ARG LATEST_RELEASE
+ARG SQUID_VERSION
 
 ENV DEBIAN_FRONTEND=noninteractive
 ENV SQUID_CACHE_DIR=/var/spool/squid
@@ -57,9 +57,9 @@ RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.
 RUN apt update && apt-get build-dep -y squid
 RUN apt install -y libssl-dev
 
-COPY --from=squid squid-${LATEST_RELEASE} squid-${LATEST_RELEASE}
+COPY --from=squid squid-${SQUID_VERSION} squid-${SQUID_VERSION}
 
-WORKDIR squid-${LATEST_RELEASE}
+WORKDIR squid-${SQUID_VERSION}
 
 RUN ./configure \
         'PKG_CONFIG_PATH=/usr/local/lib/pkgconfig' \

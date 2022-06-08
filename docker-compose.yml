@@ -4,8 +4,8 @@ services:
     build:
       context: .
       args:
-        - LATEST_RELEASE=5.5
-    image: goonnowgit/squid:5.5
+        - SQUID_VERSION=5.6
+    image: goonnowgit/squid:5.6
     ports:
       - 3128:3128
     cap_drop:
