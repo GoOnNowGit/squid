@@ -8,19 +8,37 @@ services:
     image: goonnowgit/squid:5.6
     ports:
       - 3128:3128
+    cap_add:
+      - dac_override
+      - fowner
+      - chown
+      - setgid
+      - setuid
     cap_drop:
-    - audit_write
-    - setfcap
-    - setpcap
-    - fowner
-    - mknod
-    - sys_chroot
+      - ALL
     volumes:
       - ./confs:/etc/squid
       - ./acls:/etc/squid/acls
       - ./ssl_cert:/etc/squid/ssl_cert
       - ./cache:/var/spool/squid
       - ./ssl_db:/var/lib
-      - ./logs:/var/log/squid
+        #- ./logs:/var/log/squid
+      - squid_logs:/var/log/squid
       - ./run:/var/run
     restart: unless-stopped
+  fluentd:
+    image: fluent/fluentd
+    depends_on:
+      - squid-proxy
+    cap_add:
+      - fowner
+      - chown
+      - setgid
+      - setuid
+    cap_drop:
+      - ALL
+    volumes:
+      - ./fluentd:/fluentd/etc
+      - squid_logs:/var/log/squid:ro
+volumes:
+  squid_logs:
