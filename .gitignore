@@ -1,4 +1,9 @@
 *.crt
 *.key
-.DS_Store
 *.pos
+.DS_Store
+cache
+confs/dhparam.pem
+logs
+run
+ssl_db
