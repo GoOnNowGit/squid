@@ -40,7 +40,14 @@ RUN (cd squid-ecap-exif; sh ./bootstrap.sh ; sh ./configure ; make -j $(getconf 
 ###
 ###
 ###
-FROM debian:buster-slim as builder
+FROM debian:buster-slim as deps
+RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list
+RUN apt update && apt-get build-dep -y squid
+RUN apt install -y libssl-dev m4
+###
+###
+###
+FROM deps as builder
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -52,10 +59,6 @@ ENV SQUID_LOG_DIR=/var/log/squid
 ENV SQUID_USER=proxy
 ENV SQUID_ERROR_LANG=English
 ENV SQUID_PREFIX=/usr/local/squid
-
-RUN echo "deb-src http://deb.debian.org/debian buster main" >> /etc/apt/sources.list
-RUN apt update && apt-get build-dep -y squid
-RUN apt install -y libssl-dev
 
 COPY --from=squid squid-${SQUID_VERSION} squid-${SQUID_VERSION}
 
