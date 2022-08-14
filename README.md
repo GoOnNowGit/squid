@@ -1,6 +1,6 @@
 [![Sandbox dnscrypt-proxy workflow](https://github.com/GoOnNowGit/squid-container-fun/actions/workflows/build-image.yml/badge.svg)](https://github.com/GoOnNowGit/squid-container-fun/actions/workflows/build-image.yml)
 
-# squid-container-fun
+# squid
 Squid from source
 
 ## Build image
